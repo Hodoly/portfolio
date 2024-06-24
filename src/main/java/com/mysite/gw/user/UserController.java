@@ -3,6 +3,7 @@ package com.mysite.gw.user;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,9 +31,15 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 	private final UserService userService;
 
+	@Value("${spring.security.oauth2.client.registration.google.client-id}")
+	private String clientId;
+
+	@Value("${oauth2.google.redirect-uri}")
+	private String redirectUri;
+
 	@GetMapping("/signup")
 	public String signup(UserCreateFormFst userCreateForm) {
-		return "signup_form";
+		return "signup_fst";
 	}
 
 	@GetMapping("/pwfind")
@@ -51,40 +58,41 @@ public class UserController {
 		return "pw_change";
 	}
 
-	@PostMapping("/signup")
-	public String signup(@Valid UserCreateFormFst userCreateForm, BindingResult bindingResult, Model model) {
+	@PostMapping("/signup/fst")
+	public String signupFst(@Valid UserCreateFormFst userCreateForm, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "signup_form";
+			return "signup_fst";
 		}
 		if (!userCreateForm.getPassword1().equals(userCreateForm.getPassword2())) {
 			bindingResult.rejectValue("password2", "passwordInCorrect", "2개의 비밀번호가 일치하지 않습니다.");
-			return "signup_form";
+			return "signup_fst";
 		}
 		model.addAttribute("username", userCreateForm.getUsername());
 		model.addAttribute("password", userCreateForm.getPassword1());
-		return "signup_email";
+		return "signup_sec";
 	}
-	@PostMapping("/signup2")
-	public String signup2(@Valid UserCreateFormSec userCreateForm, BindingResult bindingResult, HttpServletRequest req) {
+
+	@PostMapping("/signup/sec")
+	public String signupSec(@Valid UserCreateFormSec userCreateForm, BindingResult bindingResult,
+			HttpServletRequest req) {
 		HttpSession session = req.getSession();
-		if (session.getAttribute("authRecord") == null || session.getAttribute("authRecord") != "1" ) {
+		if (session.getAttribute("authRecord") == null || session.getAttribute("authRecord") != "1") {
 			bindingResult.rejectValue("auth", "noneAuth", "이메일 인증을 완료해주세요.");
-			return "signup_email";
+			return "signup_sec";
 		}
 		try {
 			userService.create(userCreateForm.getUsername(), userCreateForm.getEmail(), userCreateForm.getPassword());
 		} catch (DataIntegrityViolationException e) {
 			e.printStackTrace();
 			bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-			return "signup_form";
+			return "signup_fst";
 		} catch (Exception e) {
 			e.printStackTrace();
 			bindingResult.reject("signupFailed", e.getMessage());
-			return "signup_form";
+			return "signup_fst";
 		}
 		return "redirect:/";
 	}
-	
 
 	@PostMapping("/pwchange")
 	public String pwchange(@Valid UserChangePw userChangePw, BindingResult bindingResult) {
@@ -100,7 +108,7 @@ public class UserController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			bindingResult.reject("signupFailed", e.getMessage());
-			return "signup_form";
+			return "signup_fst";
 		}
 		return "redirect:/";
 	}
@@ -108,5 +116,12 @@ public class UserController {
 	@GetMapping("/login")
 	public String login() {
 		return "login_form";
+	}
+
+	@GetMapping("/google/login")
+	public String googleLogin() {
+		String _uri = "https://accounts.google.com/o/oauth2/auth?client_id=" + clientId + "&redirect_uri=" + redirectUri
+				+ "&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile";
+		return "redirect:" + _uri;
 	}
 }

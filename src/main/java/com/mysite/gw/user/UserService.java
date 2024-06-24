@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	
+
 	public SiteUser create(String username, String email, String password) {
 		SiteUser user = new SiteUser();
 		user.setUsername(username);
@@ -24,7 +24,7 @@ public class UserService {
 		this.userRepository.save(user);
 		return user;
 	}
-	
+
 	public SiteUser pwchange(String username, String password) {
 		Optional<SiteUser> result = userRepository.findByUsername(username);
 		SiteUser user = result.get();
@@ -32,29 +32,31 @@ public class UserService {
 		this.userRepository.save(user);
 		return user;
 	}
-	
+
 	public SiteUser getUser(String username) {
 		Optional<SiteUser> siteUser = this.userRepository.findByUsername(username);
-		if(siteUser.isPresent()) {
+		if (siteUser.isPresent()) {
 			return siteUser.get();
-		}else {
+		} else {
 			throw new DataNotFoundException("siteuser not found");
 		}
 	}
+	
 	public SiteUser getUserByEmail(String email) {
 		Optional<SiteUser> siteUser = this.userRepository.findByEmail(email);
-		if(siteUser.isPresent()) {
+		if (siteUser.isPresent()) {
 			return siteUser.get();
-		}else {
+		} else {
 			throw new DataNotFoundException("siteuser not found");
 		}
 	}
-	public Integer getUserEmail(String email) {
+	
+	public boolean getUserCheck(String email) {
 		Optional<SiteUser> siteUser = this.userRepository.findByEmail(email);
-		if(siteUser.isPresent()) {
-			return 1;
-		}else {
-			return 0;
+		if (siteUser.isPresent()) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 }
