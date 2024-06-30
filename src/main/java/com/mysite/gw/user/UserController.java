@@ -68,6 +68,7 @@ public class UserController {
 			return "signup_fst";
 		}
 		model.addAttribute("username", userCreateForm.getUsername());
+		model.addAttribute("nickname", userCreateForm.getNickname());
 		model.addAttribute("password", userCreateForm.getPassword1());
 		return "signup_sec";
 	}
@@ -81,7 +82,7 @@ public class UserController {
 			return "signup_sec";
 		}
 		try {
-			userService.create(userCreateForm.getUsername(), userCreateForm.getEmail(), userCreateForm.getPassword());
+			userService.create(userCreateForm.getNickname(), userCreateForm.getUsername(), userCreateForm.getEmail(), userCreateForm.getPassword(),"0");
 		} catch (DataIntegrityViolationException e) {
 			e.printStackTrace();
 			bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");

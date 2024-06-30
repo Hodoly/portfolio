@@ -1,4 +1,8 @@
-package com.mysite.gw.user;
+package com.mysite.gw.oauth;
+
+import java.util.Collection;
+
+import org.springframework.security.core.GrantedAuthority;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class SiteUser {
+public class OauthUser {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -28,6 +32,5 @@ public class SiteUser {
 	
 	@Column(unique = true)
 	private String email;
-	
-	private String type;
+
 }

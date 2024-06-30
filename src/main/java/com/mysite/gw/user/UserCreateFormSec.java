@@ -9,6 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserCreateFormSec {
+	private String nickname;
+	
 	private String username;
 	
 	private String password;

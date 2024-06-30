@@ -1,6 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
 	<form th:action="@{/user/signup/sec}" th:object="${userCreateFormSec}" method="post">
+		<input type="text" name="nickname" id="nickname" style="display: none;" th:value="${nickname}">
 		<input type="text" name="username" id="username" style="display: none;" th:value="${username}">
 		<input type="text" name="password" id="password" style="display: none;" th:value="${password}">
 		<div class="mb-3">

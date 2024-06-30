@@ -20,8 +20,14 @@ $("[name='send']").off().on("click", function() {
 		, subject: subject
 		, body: body
 	}
-	// csrf
-	csrf();
+	
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(function() {
+		$(document).ajaxSend(function(e, xhr, options) {
+			xhr.setRequestHeader(header, token);
+		});
+	});
 
 	$.ajax({
 		url: "/email/signup"
@@ -55,8 +61,13 @@ $("[name='authcheck']").off().on("click", function() {
 		, serial: serial
 	}
 	
-	// csrf
-	csrf();
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(function() {
+		$(document).ajaxSend(function(e, xhr, options) {
+			xhr.setRequestHeader(header, token);
+		});
+	});
 	
 	$.ajax({
 		url: "/check/signup"
@@ -118,13 +129,3 @@ function emailCheck(email_address) {
 }
 
 
-// csrf 토큰
-function csrf() {
-	var token = $("meta[name='_csrf']").attr("content");
-	var header = $("meta[name='_csrf_header']").attr("content");
-	$(function() {
-		$(document).ajaxSend(function(e, xhr, options) {
-			xhr.setRequestHeader(header, token);
-		});
-	});
-}

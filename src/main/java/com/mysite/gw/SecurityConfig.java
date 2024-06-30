@@ -13,39 +13,37 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.mysite.gw.oauth.CustomOAuth2UserService;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
+    
 	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-		http
-			.authorizeRequests((authorizeHttpRequests) -> authorizeHttpRequests.
-					requestMatchers(new AntPathRequestMatcher("/**")).permitAll()
-					
-					)
-			.csrf((csrf) -> csrf
-					.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
-			.headers((headers) -> headers
-					.addHeaderWriter(new XFrameOptionsHeaderWriter(
-							XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
-			.formLogin((formLogin) -> formLogin
-					.loginPage("/user/login")
-					.defaultSuccessUrl("/"))
-					.logout((logout) -> logout
-							.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-							.logoutSuccessUrl("/")
-							.invalidateHttpSession(true))
-			;
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeRequests(
+				(authorizeRequests) -> authorizeRequests.requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
+				.csrf((csrf) -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
+				.headers((headers) -> headers.addHeaderWriter(
+						new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
+				.formLogin((formLogin) -> formLogin.loginPage("/user/login").defaultSuccessUrl("/"))
+				.logout((logout) -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
+						.logoutSuccessUrl("/").invalidateHttpSession(true))
+				.oauth2Login(
+						oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)));
 		return http.build();
 	}
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
 	
+
 	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+			throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 }

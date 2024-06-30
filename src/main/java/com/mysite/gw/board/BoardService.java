@@ -81,14 +81,11 @@ public class BoardService {
 	public void create(String subject, String content, SiteUser user, int cateId) {
 		Board q = new Board();
 		// TO-DO: 카테고리 가져오기
-		System.out.println("cateId>>>> " + cateId);
 		Category category = categoryRepository.getById(cateId);
 		q.setSubject(subject);
 		q.setContent(content);
 		q.setCreateDate(LocalDateTime.now());
-		System.out.println("category>>>" + category);
 		q.setCategory(category);
-		System.out.println("checkmsg222");
 		q.setAuthor(user);
 		this.boardRepository.save(q);
 	}

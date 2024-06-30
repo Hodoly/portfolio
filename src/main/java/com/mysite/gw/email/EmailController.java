@@ -90,7 +90,7 @@ public class EmailController {
 		System.out.println(email);
 		String getSerial = emailService.getUserByEmail(email);
 		if (getSerial.equals(serial)) {
-			SiteUser user = userService.getUserByEmail(email);
+			SiteUser user = userService.getUserByEmail(email,"0");
 			return user.getUsername();
 		} else {
 			return "0";
